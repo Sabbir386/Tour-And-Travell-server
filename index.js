@@ -3,7 +3,7 @@ const cors = require("cors");
 const port = process.env.PORT || 5000;
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const { query } = require("express");
 
 const app = express();
@@ -19,31 +19,34 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-    try{
-        const hotelsCollection = client.db('tour').collection('hotels')
+  try {
+    const hotelsCollection = client.db("tour").collection("hotels");
 
-        app.get('/hotels', async (req,res) =>{
-            const query = {};
-            const result = await hotelsCollection.find(query).toArray();
-            res.send(result);
-
-            
-        });
-        app.get('/hotels/search', async (req,res) =>{
-            const name = req.query.name;
-            const money = req.query.money;
-            const query = {
-                "$or":[
-                    {title:{$regex: new RegExp(name, "i")}},
-                    {price: { $lte: money }},
-                ]
-            };
-            const result = await hotelsCollection.find(query).toArray();
-            res.send(result);
-        });
-    } finally{
-
-    }
+    app.get("/hotels", async (req, res) => {
+      const query = {};
+      const result = await hotelsCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/hotels/search", async (req, res) => {
+      const name = req.query.name;
+      const money = req.query.money;
+      const query = {
+        $or: [
+          { title: { $regex: new RegExp(name, "i") } },
+          { price: { $lte: money } },
+        ],
+      };
+      const result = await hotelsCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/hotels/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { title: id };
+      const booking = await hotelsCollection.findOne(query);
+      res.send(booking);
+    });
+  } finally {
+  }
 }
 run().catch(console.log);
 app.get("/", (req, res) => {
