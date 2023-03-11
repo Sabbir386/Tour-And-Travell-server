@@ -8,6 +8,8 @@ const { query } = require("express");
 
 const app = express();
 
+
+
 app.use(cors());
 app.use(express.json());
 
@@ -21,6 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const hotelsCollection = client.db("tour").collection("hotels");
+    const bookingsCollection = client.db("tour").collection("bookings");
 
     app.get("/hotels", async (req, res) => {
       const query = {};
@@ -45,6 +48,18 @@ async function run() {
       const booking = await hotelsCollection.findOne(query);
       res.send(booking);
     });
+    app.get("/bookings", async (req, res) => {
+      const query = {};
+      const result = await bookingsCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.post("/bookings", async (req, res) => {
+      const product = req.body;
+      const result = await bookingsCollection.insertOne(product);
+      res.send(result);
+    });
+ 
+    
   } finally {
   }
 }
