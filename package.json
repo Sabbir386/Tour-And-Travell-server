@@ -18,6 +18,7 @@
     "mongodb": "^4.13.0",
     "nodemon": "^2.0.20",
     "sslcommerz": "^1.7.0",
+    "sslcommerz-lts": "^1.1.0",
     "stripe": "^11.6.0"
   }
 }
