@@ -1,0 +1,72 @@
+    app.get("/ssl-request", async (req, res) => {
+      const id = req.query.infos;
+      const query = { _id: new ObjectId(id) };
+      const product = await bookingsCollection.findOne(query);
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          status: "paid",
+        },
+      };
+      const result = await bookingsCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+
+
+
+      const data = {
+        total_amount: parseInt(product.amount),
+        currency: "BDT",
+        tran_id: "product._id", // use unique tran_id for each api call
+        success_url: "http://localhost:3000/",
+        fail_url: "http://localhost:3000/fail",
+        cancel_url: "http://localhost:3000/cancel",
+        ipn_url: "http://localhost:3000/ipn",
+        shipping_method: "Courier",
+        product_name: "Computer.",
+        product_category: "Electronic",
+        product_profile: "general",
+        cus_name: product.fname,
+        cus_email: product.email,
+        cus_add1: product.address,
+        cus_add2: "Dhaka",
+        cus_city: "Dhaka",
+        cus_state: "Dhaka",
+        cus_postcode: "1000",
+        cus_country: "Bangladesh",
+        cus_phone: "01711111111",
+        cus_fax: "01711111111",
+        ship_name: "Customer Name",
+        ship_add1: "Dhaka",
+        ship_add2: "Dhaka",
+        ship_city: "Dhaka",
+        ship_state: "Dhaka",
+        ship_postcode: 1000,
+        ship_country: "Bangladesh",
+      };
+      const sslcommer = new SSLCommerzPayment(
+        process.env.STORE_ID,
+        process.env.STORE_PASSWORD,
+        false
+      ); //true for live default false for sandbox
+      // sslcommer.init(data).then((data) => {
+        
+      //   if (data?.GatewayPageURL) {
+      //     console.log(data?.GatewayPageURL)
+      //     // return res.redirect(data?.GatewayPageURL);
+      //   } else {
+      //     return res.status(400).json({
+      //       message: "Session was not successful",
+      //     });
+      //   }
+      // });
+      sslcommer.init(data).then(apiResponse => {
+        // Redirect the user to payment gateway
+        let GatewayPageURL = apiResponse.GatewayPageURL
+        res.redirect(GatewayPageURL)
+        console.log('Redirecting to: ', GatewayPageURL)
+    });
+    });
