@@ -61,6 +61,11 @@ async function run() {
       }
       next();
     };
+    app.get('/test',async (req,res) =>{
+        const query = {};
+        const result = await hotelsCollection.find(query).toArray();
+        res.send(result);
+    })
     app.get("/dashboard", async (req, res) => {
       const email = req.query.email;
       const userInfo = await usersCollection.findOne({ email: email });
